@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <meta description="Stock hue cycle."/>
+        <meta publisher="WhirlwindFX" />
+        <meta property="speed" label="Cycle Speed" type="number" min="1" max="10" default="2">
+    </head>
+        
+    <body style="margin: 0; padding: 0;">
+        <canvas id="exCanvas" style="width: 100%; height: 100%"></canvas>
+    </body>
+        
+    <script>
+        // Seconds since epoch
+        const getTime = () => Math.round(Date.now())
+        const pixelSize = [3, 150]
+        const pixelAmount = 8
+        const pixelsPositions = [
+            [56, 0],
+            [59, 0],
+            [62, 0],
+            [65, 0],
+            [68, 0],
+            [71, 0],
+            [74, 0],
+            [77, 0],
+        ]
+        let baseFrame = [
+            [198/4, 0, 255/4],
+            [198, 0, 255],
+            [198, 0, 255],
+            [198/4, 0, 255/4],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+
+        // Should be enough with changing this two values for most usecases
+        // Sets how many miliseconds to wait between calculating new frames
+        const nextFrameThreshold = 150
+        const calculateNewFrame = (prevPrevFrame, prevFrame) => {
+            let nextFrame = []
+            for(let i = 0; i < pixelAmount; i++) {
+                nextFrame[i] = prevFrame[(i + 1) % pixelAmount]
+            }
+            return nextFrame
+        }
+        let oldFrame = [...baseFrame]
+        let nextFrame = calculateNewFrame(oldFrame, oldFrame)
+        let lastFrameTime = getTime()
+        let timeSinceFrame = 0
+
+        // Engine, no need to understand it
+        const updatePixel = (pixelId, r, g, b) => {
+            pixelsColors[pixelId - 1] = [r, g, b]
+        }
+        const drawPixels = (ctx, pixelsColors) => {
+            for(let i = 0; i < pixelAmount; i++) {
+                const color = pixelsColors[i]
+                ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})` 
+
+                const pixelPosition = pixelsPositions[i]
+                ctx.fillRect(pixelPosition[0], pixelPosition[1], pixelSize[0], pixelSize[1])
+            }
+        }
+
+        // Get the canvas element from the DOM
+        let c = document.getElementById("exCanvas")
+        let ctx = c.getContext("2d")  
+        const interpolatePixels = (p1, p2, interpolationWeight) => {
+            let interpolatedPixel = []
+            for(let i = 0; i < 3; i++) {
+                interpolatedPixel[i] = p1[i] * (1 - interpolationWeight) + p2[i] * interpolationWeight
+            }
+            return interpolatedPixel
+        }
+
+        const interpolateFrames = (oldFrame, nextFrame, interpolationWeight) => {
+            let interpolatedFrames = []
+            for(let i = 0; i < pixelAmount; i++) {
+                interpolatedFrames[i] = interpolatePixels(oldFrame[i], nextFrame[i], interpolationWeight)
+            }
+            return interpolatedFrames
+        }
+
+        function update() {
+            let currentTime = getTime()
+            timeSinceFrame = currentTime - lastFrameTime
+            if(timeSinceFrame >= nextFrameThreshold) {
+                lastFrameTime = lastFrameTime + nextFrameThreshold
+
+                let oldestFrame = oldFrame
+                oldFrame = nextFrame
+                nextFrame = calculateNewFrame(oldestFrame, oldFrame)
+                drawPixels(ctx, oldFrame, nextFrame, (timeSinceFrame - nextFrameThreshold) / nextFrameThreshold)
+            } else {
+                let interpolationWeight = timeSinceFrame / nextFrameThreshold
+                drawPixels(ctx, interpolateFrames(oldFrame, nextFrame, interpolationWeight))
+            }
+            window.requestAnimationFrame(update)
+        }
+        window.requestAnimationFrame(update)
+    </script>
+</html>
