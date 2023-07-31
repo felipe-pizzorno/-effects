@@ -1,4 +1,5 @@
 
+    /// RANDOM UTIL ///
     const cycle = num => num % pixelAmount
     function hexToRgb(hex) {
       // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -14,6 +15,24 @@
         parseInt(result[3], 16)
       ] : null;
     }
+    const sum3Vectors = ([c11, c12, c13], [c21,c22, c23]) => [c11 + c21, c12 + c22, c13 + c23]
+    const scale3Vector = ([c1, c2, c3], scalar) => [scalar * c1, scalar * c2, scalar * c3]
+    const substract3Vectors = ([c11, c12, c13], [c21, c22, c23]) => [c11 - c21, c12 - c22, c13 - c23]
+    const sumVectors = ([c11, c12], [c21, c22]) => [c11 + c21, c12 + c22]
+    const scaleVector = (scalar, [c1, c2]) => [scalar * c1, scalar * c2]
+    const substractVectors = ([c11, c12], [c21, c22]) => [c11 - c21, c12 - c22]
+
+    const rotate = (angle, baseVector, tangentVector) => {
+      let cosBase = scaleVector(Math.cos(angle), baseVector)
+      let sinTang = scaleVector(Math.sin(angle), tangentVector)
+      let positiveTangent = sumVectors(cosBase, sinTang)
+      let negativeTangent = substractVectors(cosBase, sinTang)
+
+      return [positiveTangent, negativeTangent]
+    }
+    /// FINISH RANDOM UTIL ///
+    
+
     // Seconds since epoch
     const getTime = () => Math.round(Date.now())
     const updatePixels = (pixelIds, rgb, newPixelColors) => {
@@ -59,21 +78,7 @@
     // Get the canvas element from the DOM
     let c = document.getElementById('exCanvas')
     let ctx = c.getContext('2d')  
-    const sum3Vectors = ([c11, c12, c13], [c21,c22, c23]) => [c11 + c21, c12 + c22, c13 + c23]
-    const scale3Vector = ([c1, c2, c3], scalar) => [scalar * c1, scalar * c2, scalar * c3]
-    const substract3Vectors = ([c11, c12, c13], [c21, c22, c23]) => [c11 - c21, c12 - c22, c13 - c23]
-    const sumVectors = ([c11, c12], [c21, c22]) => [c11 + c21, c12 + c22]
-    const scaleVector = (scalar, [c1, c2]) => [scalar * c1, scalar * c2]
-    const substractVectors = ([c11, c12], [c21, c22]) => [c11 - c21, c12 - c22]
 
-    const rotate = (angle, baseVector, tangentVector) => {
-      let cosBase = scaleVector(Math.cos(angle), baseVector)
-      let sinTang = scaleVector(Math.sin(angle), tangentVector)
-      let positiveTangent = sumVectors(cosBase, sinTang)
-      let negativeTangent = substractVectors(cosBase, sinTang)
-
-      return [positiveTangent, negativeTangent]
-    }
     const fanLedAngle = -2 * Math.PI / pixelAmount;
     const fanBaseRotation = - Math.PI / 2.66
 
