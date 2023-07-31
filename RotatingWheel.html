@@ -31,12 +31,12 @@
         let currentPixel = animationState.extraFields.currentPixel
         let currentColor = hexToRgb(baseColor)
 
-        nextFrame[cycle(currentPixel - 1)] = scale3Vector(currentColor, 0.25)
+        nextFrame[antiCycle(currentPixel)] = scale3Vector(currentColor, 0.25)
         nextFrame[currentPixel] = currentColor
-        nextFrame[cycle(currentPixel + 1)] = currentColor
-        nextFrame[cycle(currentPixel + 2)] = scale3Vector(currentColor, 0.25) 
+        nextFrame[cycle(currentPixel)] = currentColor
+        nextFrame[cycles2(currentPixel)] = scale3Vector(currentColor, 0.25) 
 
-        return {...animationState, nextFrame, extraFields: { currentPixel: cycle(currentPixel + 1) } }
+        return {...animationState, nextFrame, extraFields: { currentPixel: antiCycle(currentPixel) } }
     }
     let defaultState = { currentPixel: 0 }
     let update = initEngine(calculateNewAnimationState, defaultState, baseFrame)

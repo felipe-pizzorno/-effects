@@ -1,6 +1,11 @@
 
     /// RANDOM UTIL ///
-    const cycle = num => num % pixelAmount
+    const cycle = num => (num + 1) % pixelAmount
+    const cycles2 = num => cycle(cycle(num))
+    const antiCycle = num => {
+      let prevNum = num - 1
+      return prevNum < 0 || prevNum > pixelAmount ? pixelAmount - 1 : prevNum
+    }
     function hexToRgb(hex) {
       // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
       var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -98,7 +103,7 @@
             ctx.beginPath()
             ctx.moveTo(x, y)
             ctx.lineTo(x + fanPoints[i][0], y + fanPoints[i][1])
-            ctx.lineTo(x + fanPoints[cycle(i + 1)][0], y + fanPoints[cycle(i + 1)][1])
+            ctx.lineTo(x + fanPoints[cycle(i)][0], y + fanPoints[cycle(i)][1])
             ctx.fillStyle = `rgb(${pixelsColors[i][0]}, ${pixelsColors[i][1]}, ${pixelsColors[i][2]})` 
             ctx.fill()
             ctx.closePath()
