@@ -2,6 +2,7 @@
     <meta description="Hue cycle."/>
     <meta publisher="WhirlwindFX" />
     <meta property="speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+    <meta property="baseColor" label="Colorpicker Control" type="color" default="#c600ff" min="0" max="360"/>
 </head>
     
 <body style="margin: 0; padding: 0;">
@@ -10,7 +11,8 @@
     
 <script type="text/javascript" src="engine.js"></script><script>
     // Defines meta variables, used for dev
-    var speed = 3
+    var speed = 1
+    var baseColor = "#c600ff"
     //
 
     let baseFrame = [
@@ -23,15 +25,21 @@
         [0, 0, 0],
         [0, 0, 0],
     ]
-    const nextFrameThreshold = 1000
     const calculateNewAnimationState = (animationState) => {
         let nextFrame = []
-        for(let i = 0; i < pixelAmount; i++) {
-            nextFrame[i] = animationState.oldFrame[(i + 1) % pixelAmount]
-        }
-        return {...animationState, nextFrame }
+        resetPixels(nextFrame)
+        let currentPixel = animationState.extraFields.currentPixel
+        let currentColor = hexToRgb(baseColor)
+
+        nextFrame[cycle(currentPixel - 1)] = scale3Vector(currentColor, 0.25)
+        nextFrame[currentPixel] = currentColor
+        nextFrame[cycle(currentPixel + 1)] = currentColor
+        nextFrame[cycle(currentPixel + 2)] = scale3Vector(currentColor, 0.25) 
+
+        return {...animationState, nextFrame, extraFields: { currentPixel: cycle(currentPixel + 1) } }
     }
-    let update = initEngine(calculateNewAnimationState, baseFrame, nextFrameThreshold)
+    let defaultState = { currentPixel: 0 }
+    let update = initEngine(calculateNewAnimationState, defaultState, baseFrame)
 
     window.requestAnimationFrame(update)
 </script>

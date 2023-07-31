@@ -51,7 +51,7 @@
         return {...animationState, nextFrame, extraFields: {...animationState.extraFields, reverse}}
     }
     const interpolationStart = 0.1
-    let update = initEngine(calculateNewAnimationState, baseFrame, nextFrameThreshold, interpolationStart)
+    let update = initEngine(calculateNewAnimationState, {}, baseFrame, nextFrameThreshold, interpolationStart)
 
     window.requestAnimationFrame(update)
 </script>
