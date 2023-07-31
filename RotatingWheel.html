@@ -1,8 +1,9 @@
 <head>
     <meta description="Hue cycle."/>
     <meta publisher="WhirlwindFX" />
-    <meta property="speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
-    <meta property="baseColor" label="Colorpicker Control" type="color" default="#c600ff" min="0" max="360"/>
+    <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+    <meta property="InterpolationStart" label="Interpolation Start" type="number" min="0" max="10" default="0">
+    <meta property="Primary" label="Colorpicker Control" type="color" default="#c600ff" min="0" max="360"/>
 </head>
     
 <body style="margin: 0; padding: 0;">
@@ -11,30 +12,27 @@
     
 <script type="text/javascript" src="engine.js"></script><script>
     // Defines meta variables, used for dev
-    var speed = 1
-    var baseColor = "#c600ff"
+    var Speed = 1
+    var Primary = "#c600ff"
+    var Secondary = "#0000ff"
+    var Color3 = "#000000"
+    var InterpolationStart = 0
     //
 
-    let baseFrame = [
-        [198/4, 0, 255/4],
-        [198, 0, 255],
-        [198, 0, 255],
-        [198/4, 0, 255/4],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-    ]
+    let dimWhite = { color: primary, alpha: 0.25 }
+    let baseFrame = []
+    resetPixels(baseFrame)
+    updatePixels([0, 3], dimWhite, baseFrame)
+    updatePixels([1, 2], dimWhite, baseFrame)
     const calculateNewAnimationState = (animationState) => {
         let nextFrame = []
         resetPixels(nextFrame)
         let currentPixel = animationState.extraFields.currentPixel
-        let currentColor = hexToRgb(baseColor)
 
-        nextFrame[antiCycle(currentPixel)] = scale3Vector(currentColor, 0.25)
-        nextFrame[currentPixel] = currentColor
-        nextFrame[cycle(currentPixel)] = currentColor
-        nextFrame[cycles2(currentPixel)] = scale3Vector(currentColor, 0.25) 
+        nextFrame[antiCycle(currentPixel)] = dimWhite
+        nextFrame[currentPixel] = primary
+        nextFrame[cycle(currentPixel)] = primary
+        nextFrame[cycles2(currentPixel)] = dimWhite
 
         return {...animationState, nextFrame, extraFields: { currentPixel: antiCycle(currentPixel) } }
     }

@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <meta description="Stock hue cycle."/>
+        <meta publisher="WhirlwindFX" />
+        <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+        <meta property="InterpolationStart" label="Interpolation Start" type="number" min="0" max="10" default="0">
+        <meta property="Primary" label="Colorpicker Control" type="color" default="#ff0000" min="0" max="360"/>
+        <meta property="Secondary" label="Colorpicker Control" type="color" default="#0000ff" min="0" max="360"/>
+    </head>
+        
+    <body style="margin: 0; padding: 0;">
+        <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
+    </body>
+        
+    <script type="text/javascript" src="engine.js"></script><script>
+        // Defines meta variables, used for dev
+        var Speed = 3
+        var Primary = "#ff0000"
+        var Secondary = "#0000ff"
+        var Color3 = "#000000"
+        var InterpolationStart = 0
+        //
+
+        const baseFrame = []
+        resetPixels(baseFrame)
+        updatePixels([7], primary, baseFrame)
+        updatePixels([3], secondary, baseFrame)
+        // Sets how many miliseconds to wait between calculating new frames
+        // Sets how many miliseconds to wait between calculating new frames, in interpolates for values before this range
+        const nextFrameThreshold = 1000
+        const calculateNewAnimationState = (animationState) => {
+            const nextFrame = []
+            const prevFrame = animationState.oldFrame
+            const updateNextFrame = (ids, rgb) => updatePixels(ids, rgb, nextFrame)
+            resetPixels(nextFrame)
+            let reverse = animationState.extraFields.reverse
+            if(!reverse) {
+                updateNextFrame([0], prevFrame[7])
+                updateNextFrame([1], prevFrame[0])
+                updateNextFrame([4], prevFrame[3])
+                updateNextFrame([5], prevFrame[4])
+                if (nextFrame[1] !== black) {
+                    reverse = true
+                }
+            } else {
+                updateNextFrame([7], prevFrame[0])
+                updateNextFrame([0], prevFrame[1])
+                updateNextFrame([3], prevFrame[4])
+                updateNextFrame([4], prevFrame[5])
+                if (nextFrame[7] !== black) {
+                    reverse = false
+                }
+            }
+
+            return {...animationState, nextFrame, extraFields: {...animationState.extraFields, reverse}}
+        }
+        let update = initEngine(calculateNewAnimationState, { reverse: false }, baseFrame, nextFrameThreshold)
+
+        window.requestAnimationFrame(update)
+    </script>
+</html>

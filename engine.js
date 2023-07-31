@@ -1,25 +1,6 @@
 
     /// RANDOM UTIL ///
-    const cycle = num => (num + 1) % pixelAmount
-    const cycles2 = num => cycle(cycle(num))
-    const antiCycle = num => {
-      let prevNum = num - 1
-      return prevNum < 0 || prevNum > pixelAmount ? pixelAmount - 1 : prevNum
-    }
-    function hexToRgb(hex) {
-      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-        return r + r + g + g + b + b;
-      });
-
-      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16)
-      ] : null;
-    }
+    // Vector logic
     const sum3Vectors = ([c11, c12, c13], [c21,c22, c23]) => [c11 + c21, c12 + c22, c13 + c23]
     const scale3Vector = ([c1, c2, c3], scalar) => [scalar * c1, scalar * c2, scalar * c3]
     const substract3Vectors = ([c11, c12, c13], [c21, c22, c23]) => [c11 - c21, c12 - c22, c13 - c23]
@@ -35,6 +16,45 @@
 
       return [positiveTangent, negativeTangent]
     }
+    
+    // Colors
+    const primary = 'primary'
+    const secondary = 'secondary'
+    const black = 'black'
+    const red = 'red'
+    const green = 'green'
+    const blue = 'blue'
+    const violet = 'violet'
+    const white = 'white'
+    const whiteColor = [255, 255, 255]
+    const blackColor = [0, 0, 0]
+    const redColor = [255, 0, 0]
+    const greenColor = [0, 255, 0]
+    const blueColor = [0, 0, 255]
+    const violetColor = sumVectors(red, blue)
+
+    function hexToRgb(hex) {
+      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+      ] : null;
+    }
+
+    // Cycling
+    const cycle = num => (num + 1) % pixelAmount
+    const cycles2 = num => cycle(cycle(num))
+    const antiCycle = num => {
+      let prevNum = num - 1
+      return prevNum < 0 || prevNum > pixelAmount ? pixelAmount - 1 : prevNum
+    }
     /// FINISH RANDOM UTIL ///
     
 
@@ -44,14 +64,14 @@
         pixelIds.forEach(pixelId => newPixelColors[pixelId] = rgb)
     }
     const pixelList = [0, 1, 2, 3, 4, 5, 6, 7]
-    const resetPixels = (newPixelColors) => updatePixels(pixelList, [0, 0, 0], newPixelColors)
-    const newFrame = (pixelIds, rgb, defaultRgb) => {
+    const resetPixels = (newPixelColors) => updatePixels(pixelList, 'black', newPixelColors)
+    const newFrame = (pixelIds, colorId, defaultRgb) => {
         let newPixelColors = []
         for(let i = 0; i < pixelAmount; i++) {
             newPixelColors[i] = defaultRgb
         }
 
-        pixelIds.forEach(pixelId => newPixelColors[pixelId] = rgb)
+        pixelIds.forEach(pixelId => newPixelColors[pixelId] = colorId)
         return newPixelColors
     }
 
@@ -118,23 +138,46 @@
         return interpolatedPixel
     }
 
-    const interpolateFrames = (oldFrame, nextFrame, interpolationWeight, interpolationStart) => {
+    var colors = {
+      red: redColor,
+      green: greenColor,
+      blue: blueColor,
+      black: blackColor,
+      violet: violetColor,
+      white: whiteColor,
+    }
+    const getColor = (colorEnriched) => {
+      let ret
+      if(typeof colorEnriched === 'object') {
+        ret = colors[colorEnriched.color]
+        ret = colorEnriched.alpha ? scale3Vector(ret, colorEnriched.alpha) : ret
+      } else {
+        ret = colors[colorEnriched]
+      }
+
+      if(ret === undefined || ret === null) {
+        throw `Color ${colorEnriched.toString()} isn't defined...`
+      }
+      return ret
+    }
+
+    // Takes care of converting string colors to actual colors, and takes care of interpolating between frames
+    const colorFrame = (oldFrame, nextFrame, interpolationWeight, interpolationStart) => {
         if(interpolationWeight >= interpolationStart) {
           let realInterpolationWeight = (interpolationWeight - interpolationStart) / (1 - interpolationStart) 
           let interpolatedFrames = []
           for(let i = 0; i < pixelAmount; i++) {
-              interpolatedFrames[i] = interpolatePixels(oldFrame[i], nextFrame[i], realInterpolationWeight)
+              interpolatedFrames[i] = interpolatePixels(getColor(oldFrame[i]), getColor(nextFrame[i]), realInterpolationWeight)
           }
           return interpolatedFrames
         } else {
-          return oldFrame
+          return oldFrame.map(getColor)
         }
     }
     const defaultBaseFrame = []
-    updatePixels([0, 1, 2, 3, 4, 5, 6, 7], [0, 0, 0], defaultBaseFrame)
+    updatePixels([0, 1, 2, 3, 4, 5, 6, 7], 'black', defaultBaseFrame)
     const defaultUpdate = (animationState) => animationState
-
-    function initEngine(calculateNewAnimationState = defaultUpdate, initialState = {}, baseFrame = defaultBaseFrame, nextFrameThreshold = 500, interpolationStart = 0) {
+    function initEngine(calculateNewAnimationState = defaultUpdate, initialState = {}, baseFrame = defaultBaseFrame, nextFrameThreshold = 500) {
       let animationState = {
           oldFrame: [...baseFrame],
           nextFrame: [...baseFrame],
@@ -144,27 +187,33 @@
       }
 
       const update = () => {
+          colors = {
+            ...colors,
+            primary: hexToRgb(Primary),
+            secondary: hexToRgb(Secondary),
+            color3: hexToRgb(Color3),
+          }
           let currentTime = getTime()
           timeSinceFrame = currentTime - animationState.lastFrameTime
-          let actualNextFrameThreshold = nextFrameThreshold / speed
-          let frame = []
-          let shouldStop = speed === 0
+          let actualNextFrameThreshold = nextFrameThreshold / Speed
+          let coloredFrame = []
+          let shouldStop = Speed === 0
           let shouldCalculateFrame = timeSinceFrame >= actualNextFrameThreshold
           if(!(shouldStop || !shouldCalculateFrame)) {
               animationState.lastFrameTime += actualNextFrameThreshold
               animationState.oldFrame = animationState.nextFrame
               animationState = calculateNewAnimationState(animationState)
-              frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, (timeSinceFrame - actualNextFrameThreshold) / actualNextFrameThreshold, interpolationStart)
+              coloredFrame = colorFrame(animationState.oldFrame, animationState.nextFrame, (timeSinceFrame - actualNextFrameThreshold) / actualNextFrameThreshold, InterpolationStart / 10)
           } else{
             if(!shouldStop) {
-                frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, timeSinceFrame / actualNextFrameThreshold, interpolationStart)
+                coloredFrame = colorFrame(animationState.oldFrame, animationState.nextFrame, timeSinceFrame / actualNextFrameThreshold, InterpolationStart / 10)
             } else {
-                frame = animationState.oldFrame
+                coloredFrame = animationState.oldFrame
                 animationState.lastFrameTime = currentTime
             }
           }
-          drawPixels(ctx, frame)
-          drawTriangles(ctx, 800, 300, frame)
+          drawPixels(ctx, coloredFrame)
+          drawTriangles(ctx, 800, 300, coloredFrame)
           window.requestAnimationFrame(update)
       }
       return update

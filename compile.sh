@@ -20,8 +20,10 @@ function find_and_replace() {
     echo "$modified_content" > "$output_file"
 }
 
-# Usage example:
-# Replace "old_text" with "new_text" and output to "output.txt"
+# rm "..\WhirlwindFX\Effects\*"
 find_and_replace "engine.js" "Testing.html" "..\WhirlwindFX\Effects\Testing.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
-find_and_replace "engine.js" "TwoColors.html" "..\WhirlwindFX\Effects\TwoColors.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
+find_and_replace "engine.js" "TwoColorsMix.html" "..\WhirlwindFX\Effects\TwoColorsMix.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
+find_and_replace "engine.js" "Gio.html" "..\WhirlwindFX\Effects\Gio.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
 find_and_replace "engine.js" "RotatingWheel.html" "..\WhirlwindFX\Effects\RotatingWheel.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
+find_and_replace "engine.js" "StyleRotatingWheel.html" "..\WhirlwindFX\Effects\StyleRotatingWheel.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"
+find_and_replace "engine.js" "StyleRotatingWheel.html" "..\WhirlwindFX\Effects\StyleRotatingWheel.html" "<script type=\"text/javascript\" src=\"engine.js\"></script><script>"

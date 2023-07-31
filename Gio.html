@@ -1,0 +1,76 @@
+<html>
+    <head>
+        <meta description="Stock hue cycle."/>
+        <meta publisher="WhirlwindFX" />
+        <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="2">
+        <meta property="Primary" label="Colorpicker Control" type="color" default="#2bfcf6" min="0" max="360"/>
+        <meta property="Secondary" label="Colorpicker Control" type="color" default="#fa1b87" min="0" max="360"/>
+        <meta property="MaxBounces" label="Max Bounces" type="number" min="0" max="10" default="3">
+        <meta property="ReachFinal" label="Reach Middle" type="boolean" default="0">
+        <meta property="InterpolationStart" label="Interpolation Start" type="number" min="0" max="10" default="0">
+    </head>
+        
+    <body style="margin: 0; padding: 0;">
+        <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
+    </body>
+        
+    <script type="text/javascript" src="engine.js"></script><script>
+        // Defines meta variables, used for dev
+        var Speed = 3
+        var Primary = "#2bfcf6" // cyan
+        var Secondary = "#fa1b87" // barbie pink
+        var Color3 = "#000000"  // black
+        var InterpolationStart = 0
+        var MaxBounces = 1
+        var ReachFinal = 0
+        //
+
+        const baseFrame = []
+        resetPixels(baseFrame)
+        updatePixels([7], primary, baseFrame)
+        updatePixels([3], secondary, baseFrame)
+        // Sets how many miliseconds to wait between calculating new frames
+        // Sets how many miliseconds to wait between calculating new frames, in interpolates for values before this range
+        const nextFrameThreshold = 1000
+        const calculateNewAnimationState = (animationState) => {
+            const nextFrame = []
+            const prevFrame = animationState.oldFrame
+            const updateNextFrame = (ids, rgb) => updatePixels(ids, rgb, nextFrame)
+            resetPixels(nextFrame)
+            let reverse = animationState.extraFields.reverse
+            let counter = animationState.extraFields.counter
+
+            if(!(MaxBounces === 0 || counter <= MaxBounces)) {
+                counter += 1
+                if(reverse) {
+                    pixelList.forEach(p => nextFrame[cycle(p)] = prevFrame[p])
+                } else {
+                    pixelList.forEach(p => nextFrame[antiCycle(p)] = prevFrame[p])
+                }
+                if(counter >= MaxBounces + 2) {
+                    counter = 0
+                    reverse = !reverse
+                }
+            } else {
+                if(!reverse) {
+                    pixelList.forEach(p => nextFrame[cycle(p)] = prevFrame[p])
+                    if (nextFrame[1 + ReachFinal] !== black) {
+                        counter += 1
+                        reverse = true
+                    }
+                } else {
+                    pixelList.forEach(p => nextFrame[antiCycle(p)] = prevFrame[p])
+                    if (nextFrame[7 - ReachFinal] !== black) {
+                        counter += 1
+                        reverse = false
+                    }
+                }
+            }
+
+            return {...animationState, nextFrame, extraFields: {...animationState.extraFields, reverse, counter }}
+        }
+        let update = initEngine(calculateNewAnimationState, { reverse: false, counter: 0 }, baseFrame, nextFrameThreshold)
+
+        window.requestAnimationFrame(update)
+    </script>
+</html>
