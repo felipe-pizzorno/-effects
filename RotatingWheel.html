@@ -1,39 +1,37 @@
-<html>
-    <head>
-        <meta description="Stock hue cycle."/>
-        <meta publisher="WhirlwindFX" />
-        <meta property="speed" label="Cycle Speed" type="number" min="1" max="10" default="3">
-    </head>
-        
-    <body style="margin: 0; padding: 0;">
-        <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
-    </body>
-        
-    <script type="text/javascript" src="engine.js"></script><script>
-        // Defines meta variables, comment before compile
-        let speed = 3
-        //
+<head>
+    <meta description="Hue cycle."/>
+    <meta publisher="WhirlwindFX" />
+    <meta property="speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+</head>
+    
+<body style="margin: 0; padding: 0;">
+    <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
+</body>
+    
+<script type="text/javascript" src="engine.js"></script><script>
+    // Defines meta variables, used for dev
+    var speed = 3
+    //
 
-        let baseFrame = [
-            [198/4, 0, 255/4],
-            [198, 0, 255],
-            [198, 0, 255],
-            [198/4, 0, 255/4],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ]
-        const nextFrameThreshold = 35 * speed
-        const calculateNewAnimationState = (animationState) => {
-            let nextFrame = []
-            for(let i = 0; i < pixelAmount; i++) {
-                nextFrame[i] = animationState.oldFrame[(i + 1) % pixelAmount]
-            }
-            return {...animationState, nextFrame }
+    let baseFrame = [
+        [198/4, 0, 255/4],
+        [198, 0, 255],
+        [198, 0, 255],
+        [198/4, 0, 255/4],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ]
+    const nextFrameThreshold = 1000
+    const calculateNewAnimationState = (animationState) => {
+        let nextFrame = []
+        for(let i = 0; i < pixelAmount; i++) {
+            nextFrame[i] = animationState.oldFrame[(i + 1) % pixelAmount]
         }
-        let update = initEngine(calculateNewAnimationState, baseFrame, nextFrameThreshold)
+        return {...animationState, nextFrame }
+    }
+    let update = initEngine(calculateNewAnimationState, baseFrame, nextFrameThreshold)
 
-        window.requestAnimationFrame(update)
-    </script>
-</html>
+    window.requestAnimationFrame(update)
+</script>

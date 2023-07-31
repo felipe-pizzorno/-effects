@@ -104,7 +104,7 @@
     updatePixels([0, 1, 2, 3, 4, 5, 6, 7], [0, 0, 0], defaultBaseFrame)
     const defaultUpdate = (animationState) => animationState
 
-    function initEngine(calculateNewAnimationState = defaultUpdate, baseFrame = defaultBaseFrame, nextFrameThreshold = 500, interpolationStart = 0) {
+    function initEngine(calculateNewAnimationState = defaultUpdate, baseFrame = defaultBaseFrame, nextFrameThreshold = 1000, interpolationStart = 0) {
       let animationState = {
           oldFrame: [...baseFrame],
           nextFrame: [...baseFrame],
@@ -116,20 +116,25 @@
       const update = () => {
           let currentTime = getTime()
           timeSinceFrame = currentTime - animationState.lastFrameTime
-          if(timeSinceFrame >= nextFrameThreshold) {
-              animationState.lastFrameTime += nextFrameThreshold
-
-              let oldestFrame = animationState.oldFrame
+          let actualNextFrameThreshold = 500 / speed
+          let frame = []
+          let shouldStop = speed === 0
+          let shouldCalculateFrame = timeSinceFrame >= actualNextFrameThreshold
+          if(!(shouldStop || !shouldCalculateFrame)) {
+              animationState.lastFrameTime += actualNextFrameThreshold
               animationState.oldFrame = animationState.nextFrame
               animationState = calculateNewAnimationState(animationState)
-              let frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, (timeSinceFrame - nextFrameThreshold) / nextFrameThreshold, interpolationStart)
-              drawPixels(ctx, frame)
-              drawTriangles(ctx, 800, 300, frame)
-          } else {
-              let frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, timeSinceFrame / nextFrameThreshold, interpolationStart)
-              drawPixels(ctx, frame)
-              drawTriangles(ctx, 800, 300, frame)
+              frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, (timeSinceFrame - actualNextFrameThreshold) / actualNextFrameThreshold, interpolationStart)
+          } else{
+            if(!shouldStop) {
+                frame = interpolateFrames(animationState.oldFrame, animationState.nextFrame, timeSinceFrame / actualNextFrameThreshold, interpolationStart)
+            } else {
+                frame = animationState.oldFrame
+                animationState.lastFrameTime = currentTime
+            }
           }
+          drawPixels(ctx, frame)
+          drawTriangles(ctx, 800, 300, frame)
           window.requestAnimationFrame(update)
       }
       return update
