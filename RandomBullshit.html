@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <meta description="Stock hue cycle."/>
+        <meta publisher="WhirlwindFX" />
+        <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+        <meta property="InterpolationStart" label="Interpolation Start" type="number" min="0" max="10" default="0">
+        <meta property="Primary" label="Colorpicker Control" type="color" default="#ff0000" min="0" max="360"/>
+        <meta property="Secondary" label="Colorpicker Control" type="color" default="#0000ff" min="0" max="360"/>
+    </head>
+        
+    <body style="margin: 0; padding: 0;">
+        <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
+    </body>
+        
+    <script type="text/javascript" src="engine.js"></script><script>
+        // Defines meta variables, used for dev
+        var Speed = 3
+        var Primary = "#ff0000"
+        var Secondary = "#0000ff"
+        var Color3 = "#000000"
+        var InterpolationStart = 0
+
+        const baseFrame = []
+        resetPixels(baseFrame)
+
+        const nextFrameThreshold = 400
+
+        const calculateNewAnimationState = (animationState) => {
+            const prevFrame = animationState.oldFrame
+            const nextFrame = []
+            const updateNextFrame = (ids, rgb) => updatePixels(ids, rgb, nextFrame)
+
+            resetPixels(nextFrame, { color: violet, alpha: 0.3333 })
+            const currentBlack = animationState.extraFields.currentBlack
+            let frame = currentBlack.frame + 1
+            let currentBlackPixel = currentBlack.pixel
+            if(Math.random() < 0.15) {
+                if(currentBlackPixel === null || currentBlackPixel === undefined) {
+                    currentBlackPixel = randomPixel()
+                    frame = 0
+                }
+            }
+
+            const framesBack = 8
+            if (frame === framesBack) {
+                currentBlackPixel = undefined
+            }
+
+
+            if(Math.random() < 0.15) {
+                const randomP = randomPixel()
+                const color = { color: violet, alpha: 1 }
+                updateNextFrame([randomP], color)
+                updateNextFrame([cycle(randomP)], color)
+            }
+
+            if(currentBlackPixel !== null || currentBlackPixel !== undefined) {
+                const degColor = { color: violet, alpha: (Math.pow(270, (frame / framesBack) - 1)) / 3}
+                updateNextFrame([currentBlackPixel], degColor)
+                updateNextFrame([cycle(currentBlackPixel)], degColor)
+                updateNextFrame([antiCycle(currentBlackPixel)], degColor)
+            }
+
+            return {...animationState, nextFrame, extraFields: { currentBlack: { pixel: currentBlackPixel, frame } } }
+        }
+        let update = initEngine(calculateNewAnimationState, { currentBlack: { pixel: 0, frame: 0 } }, baseFrame, nextFrameThreshold)
+
+        window.requestAnimationFrame(update)
+    </script>
+</html>

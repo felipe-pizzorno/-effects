@@ -19,42 +19,51 @@
         var Secondary = "#0000ff"
         var Color3 = "#000000"
         var InterpolationStart = 0
-        //
 
         const baseFrame = []
         resetPixels(baseFrame)
-        updatePixels([7], primary, baseFrame)
-        updatePixels([3], secondary, baseFrame)
-        // Sets how many miliseconds to wait between calculating new frames
-        // Sets how many miliseconds to wait between calculating new frames, in interpolates for values before this range
-        const nextFrameThreshold = 1000
+
+        const nextFrameThreshold = 400
+
         const calculateNewAnimationState = (animationState) => {
-            const nextFrame = []
             const prevFrame = animationState.oldFrame
+            const nextFrame = []
             const updateNextFrame = (ids, rgb) => updatePixels(ids, rgb, nextFrame)
-            resetPixels(nextFrame)
-            let reverse = animationState.extraFields.reverse
-            if(!reverse) {
-                updateNextFrame([0], prevFrame[7])
-                updateNextFrame([1], prevFrame[0])
-                updateNextFrame([4], prevFrame[3])
-                updateNextFrame([5], prevFrame[4])
-                if (nextFrame[1] !== black) {
-                    reverse = true
-                }
-            } else {
-                updateNextFrame([7], prevFrame[0])
-                updateNextFrame([0], prevFrame[1])
-                updateNextFrame([3], prevFrame[4])
-                updateNextFrame([4], prevFrame[5])
-                if (nextFrame[7] !== black) {
-                    reverse = false
+
+            resetPixels(nextFrame, { color: violet, alpha: 0.5 })
+            const currentBlack = animationState.extraFields.currentBlack
+            console.log(currentBlack)
+            let frame = currentBlack.frame + 1
+            let currentBlackPixel = currentBlack.pixel
+            if(Math.random() < 0.15) {
+                if(currentBlackPixel === null || currentBlackPixel === undefined) {
+                    currentBlackPixel = randomPixel()
+                    frame = 0
                 }
             }
 
-            return {...animationState, nextFrame, extraFields: {...animationState.extraFields, reverse}}
+            const framesBack = 15
+            if (frame === framesBack) {
+                currentBlackPixel = undefined
+            }
+
+
+            if(currentBlackPixel !== null || currentBlackPixel !== undefined) {
+                const degColor = { color: violet, alpha: (Math.pow(400, (frame / framesBack) - 1)) / 2}
+                updateNextFrame([currentBlackPixel], degColor)
+                updateNextFrame([cycle(currentBlackPixel)], degColor)
+                updateNextFrame([antiCycle(currentBlackPixel)], degColor)
+            }
+
+            if(Math.random() < 0.15) {
+                const randomP = randomPixel()
+                const color = { color: white, alpha: 1 }
+                updateNextFrame([randomP], color)
+            }
+
+            return {...animationState, nextFrame, extraFields: { currentBlack: { pixel: currentBlackPixel, frame } } }
         }
-        let update = initEngine(calculateNewAnimationState, { reverse: false }, baseFrame, nextFrameThreshold)
+        let update = initEngine(calculateNewAnimationState, { currentBlack: { pixel: 0, frame: 0 } }, baseFrame, nextFrameThreshold)
 
         window.requestAnimationFrame(update)
     </script>

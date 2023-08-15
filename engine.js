@@ -1,5 +1,7 @@
 
     /// RANDOM UTIL ///
+    const randomInt = (max) => Math.floor(Math.random() * max)
+    const randomPixel = () => randomInt(7)
     // Vector logic
     const sum3Vectors = ([c11, c12, c13], [c21,c22, c23]) => [c11 + c21, c12 + c22, c13 + c23]
     const scale3Vector = ([c1, c2, c3], scalar) => [scalar * c1, scalar * c2, scalar * c3]
@@ -31,7 +33,7 @@
     const redColor = [255, 0, 0]
     const greenColor = [0, 255, 0]
     const blueColor = [0, 0, 255]
-    const violetColor = sumVectors(red, blue)
+    const violetColor = [198, 0, 255]
 
     function hexToRgb(hex) {
       // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -55,16 +57,20 @@
       let prevNum = num - 1
       return prevNum < 0 || prevNum > pixelAmount ? pixelAmount - 1 : prevNum
     }
+    const antiCycles2 = num => antiCycle(antiCycle(num))
     /// FINISH RANDOM UTIL ///
     
 
     // Seconds since epoch
     const getTime = () => Math.round(Date.now())
+    const updatePixel = (pixelId, rgb, newPixelColors) => {
+        newPixelColors[pixelId] = rgb
+    }
     const updatePixels = (pixelIds, rgb, newPixelColors) => {
-        pixelIds.forEach(pixelId => newPixelColors[pixelId] = rgb)
+        pixelIds.forEach(pixelId => updatePixel(pixelId, rgb, newPixelColors))
     }
     const pixelList = [0, 1, 2, 3, 4, 5, 6, 7]
-    const resetPixels = (newPixelColors) => updatePixels(pixelList, 'black', newPixelColors)
+    const resetPixels = (newPixelColors, clearColor = 'black') => updatePixels(pixelList, clearColor, newPixelColors)
     const newFrame = (pixelIds, colorId, defaultRgb) => {
         let newPixelColors = []
         for(let i = 0; i < pixelAmount; i++) {
@@ -150,7 +156,7 @@
       let ret
       if(typeof colorEnriched === 'object') {
         ret = colors[colorEnriched.color]
-        ret = colorEnriched.alpha ? scale3Vector(ret, colorEnriched.alpha) : ret
+        ret = colorEnriched.alpha || colorEnriched.alpha === 0 ? scale3Vector(ret, colorEnriched.alpha) : ret
       } else {
         ret = colors[colorEnriched]
       }

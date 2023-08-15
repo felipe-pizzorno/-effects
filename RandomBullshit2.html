@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <meta description="Stock hue cycle."/>
+        <meta publisher="WhirlwindFX" />
+        <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
+        <meta property="Base" label="Exponentiation Base" type="number" min="1" max="500" default="13">
+        <meta property="Primary" label="Colorpicker Control" type="color" default="#ff0000" min="0" max="360"/>
+        <meta property="Secondary" label="Colorpicker Control" type="color" default="#0000ff" min="0" max="360"/>
+    </head>
+        
+    <body style="margin: 0; padding: 0;">
+        <canvas id="exCanvas" width="1280" height="740" style="width: 100%; height: 100%"></canvas>
+    </body>
+        
+    <script type="text/javascript" src="engine.js"></script><script>
+        // Defines meta variables, used for dev
+        var Speed = 3
+        var Primary = "#ff0000"
+        var Secondary = "#0000ff"
+        var Color3 = "#000000"
+        var Base = 400
+        var InterpolationStart = 0
+
+        const baseFrame = []
+        resetPixels(baseFrame)
+
+        const nextFrameThreshold = 800
+
+        const calculateNewAnimationState = (animationState) => {
+            const prevFrame = animationState.oldFrame
+            const nextFrame = []
+            const updateNextFrame = (ids, rgb) => updatePixels(ids, rgb, nextFrame)
+
+            const currentBlack = animationState.extraFields.currentBlack
+            pixelList.forEach(pixelId => updatePixel(pixelId, { color: violet, alpha: Math.pow(Base, Math.random() - 1) }, nextFrame))
+
+            return {...animationState, nextFrame }
+        }
+        let update = initEngine(calculateNewAnimationState, {}, baseFrame, nextFrameThreshold)
+
+        window.requestAnimationFrame(update)
+    </script>
+</html>

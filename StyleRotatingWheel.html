@@ -3,6 +3,8 @@
     <meta publisher="WhirlwindFX" />
     <meta property="Speed" label="Cycle Speed" type="number" min="0" max="10" default="3">
     <meta property="InterpolationStart" label="Interpolation Start" type="number" min="0" max="10" default="0">
+    <meta property="Primary" label="Colorpicker Control" type="color" default="#2bfcf6" min="0" max="360"/>
+    <meta property="Secondary" label="Colorpicker Control" type="color" default="#fa1b87" min="0" max="360"/>
 </head>
     
 <body style="margin: 0; padding: 0;">
@@ -19,8 +21,8 @@
     //
 
     let umbrellaCorp = []
-    updatePixels([0, 2, 4, 6], red, umbrellaCorp)
-    updatePixels([1, 3, 5, 7], { color: white, alpha: 0.18 }, umbrellaCorp)
+    updatePixels([0, 2, 4, 6], primary, umbrellaCorp)
+    updatePixels([1, 3, 5, 7], secondary, umbrellaCorp)
     let violetWheel = [
         [198/4, 0, 255/4],
         [198, 0, 255],
