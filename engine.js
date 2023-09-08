@@ -207,6 +207,9 @@
           let shouldCalculateFrame = timeSinceFrame >= actualNextFrameThreshold
           if(!(shouldStop || !shouldCalculateFrame)) {
               animationState.lastFrameTime += actualNextFrameThreshold
+              if (animationState.lastFrameTime < currentTime) {
+                animationState.lastFrameTime = currentTime
+              }
               animationState.oldFrame = animationState.nextFrame
               animationState = calculateNewAnimationState(animationState)
               coloredFrame = colorFrame(animationState.oldFrame, animationState.nextFrame, (timeSinceFrame - actualNextFrameThreshold) / actualNextFrameThreshold, InterpolationStart / 10)
